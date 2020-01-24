@@ -32,6 +32,5 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this,MapsActivity.class));    //porta l'utente da una view ad un'altra
             }
         });
-
     }
 }

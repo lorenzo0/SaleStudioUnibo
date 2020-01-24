@@ -2,10 +2,12 @@ package com.example.salestudioapplication;
 //mirco isdead --> da vedere
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -212,6 +214,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
              case  "Sala Studio Bigiavi":
                  //dati da database di posti liberi del bigiavi
                  Toast.makeText(this, "Bigiavi!", Toast.LENGTH_LONG).show();
+                 NextView();
                  break;
 
              case "Sala Studio Paleotti":
@@ -225,5 +228,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
          }
 
         return false;
+    }
+
+    public void NextView(){
+            startActivity(new Intent(this, PropertiesSalaStudioActivity.class));    //porta l'utente da una view ad un'altra
     }
 }
