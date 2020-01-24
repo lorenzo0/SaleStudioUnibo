@@ -1,5 +1,5 @@
 package com.example.salestudioapplication;
-
+//mirco isdead --> da vedere
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
@@ -33,7 +33,8 @@ import com.google.android.gms.location.LocationListener;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
                                                                 GoogleApiClient.ConnectionCallbacks,
                                                                 GoogleApiClient.OnConnectionFailedListener,
-                                                                LocationListener{
+                                                                LocationListener,
+                                                                GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
@@ -56,6 +57,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);    //carico la mappa
         mapFragment.getMapAsync(this);  //sincronizzo la mappa
+
     }
 
     @Override
@@ -67,6 +69,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             buildGoogleApiClient();     //uso l'api di google
             mMap.setMyLocationEnabled(true);    //attivo la localizzazione
         }
+
+        addingMarketSaleStudio(); //carico i marker delle sale studio
+
     }
 
     public boolean checkUserLocationPermission()    /*metodo che chiede all'utente se mi da il permesso
@@ -173,4 +178,52 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onLocationChanged(Location location) {
         }
+
+
+
+        public void addingMarketSaleStudio(){
+
+            Marker bigiaviMarker;
+            Marker paleottiMarker;
+
+            //bigiavi
+            LatLng bigiavi = new LatLng(44.4977951, 11.3496894);
+            mMap.addMarker(new MarkerOptions().position(bigiavi)
+                    .title("Sala Studio Bigiavi"));
+
+
+            //paleotti
+            LatLng paleotti = new LatLng(44.4698162, 11.3191717);
+            mMap.addMarker(new MarkerOptions().position(paleotti)
+                    .title("Sala Studio Paleotti"));
+
+            mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
+
+        }
+
+    //l'idea è quella di aprire una nuova activity dal click di una specifica aula studio
+    //dai che è figo e forse sta venendo fuori qualcosa di buono
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+
+         Integer dataFromTag = (Integer) marker.getTag();
+
+         switch (marker.getTitle()){
+             case  "Sala Studio Bigiavi":
+                 //dati da database di posti liberi del bigiavi
+                 Toast.makeText(this, "Bigiavi!", Toast.LENGTH_LONG).show();
+                 break;
+
+             case "Sala Studio Paleotti":
+                 //dati da database di posti liberi del paleotti
+                 Toast.makeText(this, "Paleotti!", Toast.LENGTH_LONG).show();
+                 break;
+
+             default:
+                 //se non trova il tag non è stato ancora implementato
+                 break;
+         }
+
+        return false;
     }
+}
