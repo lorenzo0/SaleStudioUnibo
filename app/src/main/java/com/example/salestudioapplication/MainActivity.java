@@ -19,17 +19,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main); //carico l'attività del main
 
-        NextView();
+        NextView(); //rendo attivo il metodo
     }
 
     public void NextView(){
-        final Button button = (Button) findViewById(R.id.nextPage);
+        final Button button = (Button) findViewById(R.id.nextPage); //id bottone della view
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,MapsActivity.class));
+                startActivity(new Intent(MainActivity.this,MapsActivity.class));    //porta l'utente da una view ad un'altra
             }
         });
 

@@ -33,28 +33,29 @@ import com.google.android.gms.location.LocationListener;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
                                                                 GoogleApiClient.ConnectionCallbacks,
                                                                 GoogleApiClient.OnConnectionFailedListener,
-                                                                LocationListener
-    {
+                                                                LocationListener{
 
     private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private Location lastLocation;
     private Marker currentUserLocationMarker;
+    //codice di richiesta per la localizzazione, se è diverso, non sono io che la sto richiedendo
+    //ma un soggetto esterno (falla di sicurezza)
     private static final int Request_User_Location_Code = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_maps);     //crea la vista nell'attività maps
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            checkUserLocationPermission();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){     //l'skd del dispositivo deve essere maggiore a quella della programmazione
+            checkUserLocationPermission();      //richiedo il permesso di utilizzare la posizione del dispositivo
         }
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+                .findFragmentById(R.id.map);    //carico la mappa
+        mapFragment.getMapAsync(this);  //sincronizzo la mappa
     }
 
     @Override
@@ -62,32 +63,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                                                == PackageManager.PERMISSION_GRANTED){
-            buildGoogleApiClient();
-            mMap.setMyLocationEnabled(true);
+                                                == PackageManager.PERMISSION_GRANTED){  //se l'utente mi da il permesso
+            buildGoogleApiClient();     //uso l'api di google
+            mMap.setMyLocationEnabled(true);    //attivo la localizzazione
         }
     }
 
-    public boolean checkUserLocationPermission()
+    public boolean checkUserLocationPermission()    /*metodo che chiede all'utente se mi da il permesso
+                                                     per accedere al suo servizio di localizzazione*/
     {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Request_User_Location_Code);
+                //se non mi da il permesso, glielo richiedo, genius (?)
             }else{
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Request_User_Location_Code);
             }
-            return false;
+            //se non me lo da per la seconda volta allora rinuncio
+        return false;
+
         }else{
+            //permesso concesso
             return true;
         }
     }
 
+        //metodo che elabora i risultati del metodo precedente
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
             switch (requestCode){
                 case Request_User_Location_Code:
-                    if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    {
+                    if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                             if(googleApiClient == null){
                                 buildGoogleApiClient();
@@ -101,32 +107,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
 
+        /*metodo che ci permette di utilizzare l'api di google,
+        lo carico solo nel momento nel quale l'utente mi da il permesso di controllare la sua localizzazione*/
         public synchronized void buildGoogleApiClient(){
         googleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this)
                                                         .addOnConnectionFailedListener(this)
                                                         .addApi(LocationServices.API)
                                                         .build();
-
         googleApiClient.connect();
-    }
+        }
 
-
+        //metodo che aggiorna la posizione dell'utente
         public void onLocationChanged(LocationResult location) {
-            lastLocation = location.getLastLocation();
+            lastLocation = location.getLastLocation();  //prendo l'ultima posizione dell'utente
 
-            if(currentUserLocationMarker != null)
-            {
-                currentUserLocationMarker.remove();
+            if(currentUserLocationMarker != null){  //se non è la prima volta che uso il marker
+                currentUserLocationMarker.remove(); //allora lo cancello per poi inizializzarlo
             }
+
+            //uso LatLng che è un tipo di variabile che richiede in input due variabili di tipo float
+            //la prima è la latitudine, la seconda è la langitudine
             LatLng latLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+
+            //creo un nuovo marker, che mi indica l'ultima localizzazione dell'utente
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             System.out.println(latLng);
             markerOptions.title("User Current Location");
+            //colore del marker, poco complicato eh?
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
+            //aggiungo alla mappa il marker appena creato
             currentUserLocationMarker = mMap.addMarker(markerOptions);
 
+            //animazione per muovere la camera e zoomare esattamente nel punto appena trovato, è fighissimo
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomBy(15));
 
@@ -135,29 +149,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
     }
 
+        //metodo che aggiorna la localizzazione dell'utente ogni 5 secondi
         @Override
         public void onConnected(@Nullable Bundle bundle) {
             locationRequest = new LocationRequest();
-            locationRequest.setInterval(1100);
-            locationRequest.setFastestInterval(1100);
+            locationRequest.setInterval(5000);
+            locationRequest.setFastestInterval(5000);
             locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            }
         }
 
         @Override
         public void onConnectionSuspended(int i) {
-
         }
 
         @Override
         public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
         }
 
         @Override
         public void onLocationChanged(Location location) {
-
         }
     }
