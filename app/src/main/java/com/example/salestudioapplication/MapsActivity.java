@@ -203,6 +203,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
+    public int idMap;
+
     //l'idea è quella di aprire una nuova activity dal click di una specifica aula studio
     //dai che è figo e forse sta venendo fuori qualcosa di buono
     @Override
@@ -214,6 +216,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
              case  "Sala Studio Bigiavi":
                  //dati da database di posti liberi del bigiavi
                  Toast.makeText(this, "Bigiavi!", Toast.LENGTH_LONG).show();
+                 idMap = 1;
                  NextView();
                  break;
 
@@ -230,7 +233,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return false;
     }
 
+
+
     public void NextView(){
-            startActivity(new Intent(this, PropertiesSalaStudioActivity.class));    //porta l'utente da una view ad un'altra
+
+        Intent intent = new Intent(MapsActivity.this, PropertiesSalaStudioActivity.class);
+        intent.putExtra("ID_SS", idMap);
+        startActivity(intent);
+
     }
 }
