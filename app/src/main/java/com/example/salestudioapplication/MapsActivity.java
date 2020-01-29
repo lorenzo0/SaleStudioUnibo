@@ -32,6 +32,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.location.LocationListener;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
                                                                 GoogleApiClient.ConnectionCallbacks,
                                                                 GoogleApiClient.OnConnectionFailedListener,
@@ -211,13 +214,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public boolean onMarkerClick(Marker marker) {
 
          Integer dataFromTag = (Integer) marker.getTag();
+        Intent intent = new Intent(MapsActivity.this, PropertiesSalaStudioActivity.class);
+        String image;
 
          switch (marker.getTitle()){
              case  "Sala Studio Bigiavi":
                  //dati da database di posti liberi del bigiavi
                  Toast.makeText(this, "Bigiavi!", Toast.LENGTH_LONG).show();
                  idMap = 1;
-                 NextView();
+                 intent.putExtra("ID_SS", idMap);
+
+                 image = new String("http://10.201.13.85/aulestudio/img/Bigiavi.jpeg");
+
+                 intent.putExtra("Image", image);
+                 NextView(intent);
                  break;
 
              case "Sala Studio Paleotti":
@@ -235,10 +245,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-    public void NextView(){
+    public void NextView(Intent intent){
 
-        Intent intent = new Intent(MapsActivity.this, PropertiesSalaStudioActivity.class);
-        intent.putExtra("ID_SS", idMap);
+
+
         startActivity(intent);
 
     }
