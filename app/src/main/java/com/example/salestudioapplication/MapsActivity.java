@@ -221,18 +221,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
              case  "Sala Studio Bigiavi":
                  //dati da database di posti liberi del bigiavi
                  Toast.makeText(this, "Bigiavi!", Toast.LENGTH_LONG).show();
-                 idMap = 1;
-                 intent.putExtra("ID_SS", idMap);
 
                  image = new String("http://10.201.13.85/aulestudio/img/Bigiavi.jpeg");
+                 idMap = 1;
 
+                 intent.putExtra("ID_SS", idMap);
                  intent.putExtra("Image", image);
+
                  NextView(intent);
                  break;
 
              case "Sala Studio Paleotti":
                  //dati da database di posti liberi del paleotti
                  Toast.makeText(this, "Paleotti!", Toast.LENGTH_LONG).show();
+
+                 image = new String("http://10.201.13.85/aulestudio/img/Paleotti.jpeg");
+                 idMap = 2;
+
+                 intent.putExtra("ID_SS", idMap);
+                 intent.putExtra("Image", image);
+
+                 NextView(intent);
                  break;
 
              default:
