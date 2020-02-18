@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "970778236520",
+    "firebase_url": "https://salestudiounibo.firebaseio.com",
+    "project_id": "salestudiounibo",
+    "storage_bucket": "salestudiounibo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970778236520:android:038238fb01cdaf2ff64ddd",
+        "android_client_info": {
+          "package_name": "com.example.salestudioapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "970778236520-sgae8vr1i435d542bmbtljsjoo7cihl4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9zLKX4NSBcDqKnw5xQ38TeX9wNtXYQ8c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "970778236520-sgae8vr1i435d542bmbtljsjoo7cihl4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -7,6 +7,8 @@ import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import org.json.*;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.*;
 import com.android.volley.toolbox.StringRequest;
@@ -15,13 +17,21 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 
+import java.sql.Time;
+import java.time.LocalTime;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 public class PropertiesSalaStudioActivity extends AppCompatActivity {
 
-    EditText nameSS, freeSeatSS, TotalSeatSS, Adress;
+    EditText nameSS, freeSeatSS, TotalSeatSS, Adress, nowOpen;
     ImageView SSphoto;
     Intent intent;
-    int sessionId, checkSeats;
+    int sessionId, checkSeats, currentHour;
+    Time checkOpenHour, checkCloseHour;
     String urlImage, resultHttpRequest;
+    String[] OpenHourFromJson, CloseHourFromJson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +43,7 @@ public class PropertiesSalaStudioActivity extends AppCompatActivity {
         SSphoto = (ImageView) findViewById(R.id.SSphoto);
         TotalSeatSS = (EditText) findViewById(R.id.TotalSeat);
         Adress = (EditText) findViewById(R.id.adressSS);
+        nowOpen = (EditText) findViewById(R.id.nowOpen);
 
 
         intent = getIntent();
@@ -40,59 +51,69 @@ public class PropertiesSalaStudioActivity extends AppCompatActivity {
         urlImage = intent.getStringExtra("Image");
         //Log.d("tagimg", urlImage);
 
-        final String URL = "http://10.201.5.87/aulestudio/getFreeSeats.php?IdCamera=" + sessionId;
+        final String URL = "https://aulestudiounibo.altervista.org/aulestudio/getFreeSeats.php?IDStudyRoom=" + sessionId;
         RequestQueue queue = Volley.newRequestQueue(this);
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
                 new Response.Listener<String>() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(String result) {
                         //Log.d("pos",response);
                         //freeSeatSS.setText("Are now free /n"+result+" seats");
                         resultHttpRequest = result;
 
-                        Log.d("resultHTTP", resultHttpRequest);
+                        //Log.d("resultHTTP", resultHttpRequest);
 
                         try {
                             JSONObject obj = new JSONObject(resultHttpRequest);
 
                             JSONObject jsonObjectSalaStudio = obj.getJSONObject("SalaStudio");
 
-                            String id = (String) jsonObjectSalaStudio.getString("id");
+                            String id = (String) jsonObjectSalaStudio.getString("ID");
                             String name = (String) jsonObjectSalaStudio.getString("name");
-                            String totalSeat = (String) jsonObjectSalaStudio.getString("totalSeat");
-                            String freeSeat = (String) jsonObjectSalaStudio.getString("freeSeat");
-                            String adress = (String) jsonObjectSalaStudio.getString("adress");
+                            String addressStreet = (String) jsonObjectSalaStudio.getString("addressStreet");
+                            String addressNumber = (String) jsonObjectSalaStudio.getString("addressNumber");
+                            String latitude = (String) jsonObjectSalaStudio.getString("latitude");
+                            String longitude = (String) jsonObjectSalaStudio.getString("longitude");
 
+                            String totalSeats = (String) jsonObjectSalaStudio.getString("totalSeats");
+                            String occupiedSeats = (String) jsonObjectSalaStudio.getString("occupiedSeats");
 
-                            TotalSeatSS.setText("Total seats of the study room: " + totalSeat);
-                            Adress.setText(adress);
-
-                            checkSeats = Integer.parseInt(freeSeat);
-
-                            if(checkSeats>=10)
-                            {
-                                freeSeatSS.setText("Are now free " + freeSeat + " seats,\n go and get them!");
-                                freeSeatSS.setBackgroundColor(-16711936); //green
-                            }else if(checkSeats<10){
-                                freeSeatSS.setText("Not many seats are free, only " + freeSeat + ", go and get them");
-                                freeSeatSS.setBackgroundColor(-256); //yellow
-                            }else if(checkSeats==2) {
-                                freeSeatSS.setText("Are you with a friend? There's only two seats available!");
-                                freeSeatSS.setBackgroundColor(-256); //yellow
-                            }else if(checkSeats==1) {
-                                freeSeatSS.setText("Are you alone? There's only one seat available!");
-                                freeSeatSS.setBackgroundColor(-256); //yellow
-                            }else if(checkSeats==0){
-                                freeSeatSS.setText("No seats available, try another study room");
-                                freeSeatSS.setBackgroundColor(-65536); //red
-                            }
+                            String dayOfTheWeek = (String) jsonObjectSalaStudio.getString("dayOfTheWeek");
+                            String openingHour = (String) jsonObjectSalaStudio.getString("openingHour");
+                            String closingHour = (String) jsonObjectSalaStudio.getString("closingHour");
 
 
                             Picasso.get().load(urlImage).into(SSphoto);
-
                             nameSS.setText(name);
+
+                            nowOpen.setText("Now open!");
+                            freeSeatSS.setBackgroundColor(-16711936); //green
+
+                            //una volta che verifico se è aperta la sala studio
+                            TotalSeatSS.setText("Total seats of the study room: " + totalSeats);
+                            Adress.setText(addressStreet + ", " +addressNumber );
+
+                            int freeSeat = Integer.parseInt(totalSeats) - Integer.parseInt(occupiedSeats);
+
+                                if(freeSeat>=10)
+                                {
+                                    freeSeatSS.setText("Are now free " + freeSeat + " seats,\n go and get them!");
+                                }else if(freeSeat<10){
+                                    freeSeatSS.setText("Not many seats are free, only " + freeSeat + ", go and get them");
+                                    freeSeatSS.setBackgroundColor(-256); //yellow
+                                }else if(freeSeat==2) {
+                                    freeSeatSS.setText("Are you with a friend? There's only two seats available!");
+                                    freeSeatSS.setBackgroundColor(-256); //yellow
+                                }else if(freeSeat==1) {
+                                    freeSeatSS.setText("Are you alone? There's only one seat available!");
+                                    freeSeatSS.setBackgroundColor(-256); //yellow
+                                }else if(freeSeat==0){
+                                    freeSeatSS.setText("No seats available, try another study room");
+                                    freeSeatSS.setBackgroundColor(-65536); //red
+                                }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -107,5 +128,7 @@ public class PropertiesSalaStudioActivity extends AppCompatActivity {
         });
         queue.add(stringRequest);
     }
+
+
 
 }

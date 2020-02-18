@@ -7,15 +7,23 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -31,6 +39,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.location.LocationListener;
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -46,9 +59,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationRequest locationRequest;
     private Location lastLocation;
     private Marker currentUserLocationMarker;
+
+
+    String resultHttpRequest;
+    int currentHour;
+    String[] OpenHourFromJson, CloseHourFromJson;
     //codice di richiesta per la localizzazione, se è diverso, non sono io che la sto richiedendo
     //ma un soggetto esterno (falla di sicurezza)
     private static final int Request_User_Location_Code = 99;
+    SalaStudio salaStudio = new SalaStudio();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,9 +92,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                 == PackageManager.PERMISSION_GRANTED){  //se l'utente mi da il permesso
             buildGoogleApiClient();     //uso l'api di google
             mMap.setMyLocationEnabled(true);    //attivo la localizzazione
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(44.4963128, 11.349082), 12));   //zoom automatico a Bologna nell'onCreate
         }
 
-        addingMarketSaleStudio(); //carico i marker delle sale studio
+        LocationOnMapsRequest(); //carico i marker delle sale studio
 
     }
 
@@ -185,25 +205,85 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-
-        public void addingMarketSaleStudio(){
-
-            Marker bigiaviMarker;
-            Marker paleottiMarker;
-
-            //bigiavi
-            LatLng bigiavi = new LatLng(44.4977951, 11.3496894);
-            mMap.addMarker(new MarkerOptions().position(bigiavi)
-                    .title("Sala Studio Bigiavi"));
+        public void LocationOnMapsRequest(){
+            final String URL = "https://aulestudiounibo.altervista.org/aulestudio/getLocationAuleStudio.php";
+            RequestQueue queue = Volley.newRequestQueue(this);
 
 
-            //paleotti
-            LatLng paleotti = new LatLng(44.4698162, 11.3191717);
-            mMap.addMarker(new MarkerOptions().position(paleotti)
-                    .title("Sala Studio Paleotti"));
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
+                    new Response.Listener<String>() {
+                        @RequiresApi(api = Build.VERSION_CODES.O)
+                        @Override
+                        public void onResponse(String result) {
 
-            mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
+                            resultHttpRequest = result;
+                            //Log.d("resultHTTP", resultHttpRequest);
 
+                            try {
+
+                                JSONObject obj = new JSONObject(resultHttpRequest);
+                                JSONArray jsonObjectSalaStudio = obj.getJSONArray("SalaStudio");
+
+                                for(int i=0; i<jsonObjectSalaStudio.length(); i++) {
+
+                                    JSONObject jsonCurrentObject = jsonObjectSalaStudio.getJSONObject(i);
+
+                                    String name = (String) jsonCurrentObject.getString("name");
+
+                                    String latitude = (String) jsonCurrentObject.getString("latitude");
+                                    String longitude = (String) jsonCurrentObject.getString("longitude");
+
+                                    String totalSeats = (String) jsonCurrentObject.getString("totalSeats");
+                                    String occupiedSeats = (String) jsonCurrentObject.getString("occupiedSeats");
+
+                                    String dayOfTheWeek = (String) jsonCurrentObject.getString("dayOfTheWeek");
+                                    String openingHour = (String) jsonCurrentObject.getString("openingHour");
+                                    String closingHour = (String) jsonCurrentObject.getString("closingHour");
+
+                                    Log.d("idLetto", name);
+
+                                    getRestrictionOnAddingMarker(name, latitude, longitude, totalSeats, occupiedSeats, openingHour, closingHour);
+                                }
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                }
+            });
+            queue.add(stringRequest);
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        public void getRestrictionOnAddingMarker(String name, String latitude, String longitude, String totalSeats,
+                                                 String occupiedSeats, String openingHour, String closingHour){
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                currentHour = salaStudio.getCurrentHour();
+            }
+
+            OpenHourFromJson = openingHour.split(":");
+            CloseHourFromJson = closingHour.split(":");
+
+            if(currentHour>Integer.parseInt(OpenHourFromJson[0]) && currentHour<Integer.parseInt(CloseHourFromJson[0])
+                    && Integer.parseInt(totalSeats)>Integer.parseInt(occupiedSeats)) {
+                addingMarketSaleStudio(name, latitude, longitude);
+            }
+        }
+
+
+        public void addingMarketSaleStudio(String name, String latitude, String longitude){
+
+            LatLng newMark = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude));
+
+            this.mMap.addMarker(new MarkerOptions().position(newMark)
+                    .title("Sala Studio "+name));
+
+            this.mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
         }
 
     public int idMap;
@@ -218,25 +298,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String image;
 
          switch (marker.getTitle()){
-             case  "Sala Studio Bigiavi":
-                 //dati da database di posti liberi del bigiavi
-                 Toast.makeText(this, "Bigiavi!", Toast.LENGTH_LONG).show();
-
-                 image = new String("http://10.201.13.85/aulestudio/img/Bigiavi.jpeg");
-                 idMap = 1;
-
-                 intent.putExtra("ID_SS", idMap);
-                 intent.putExtra("Image", image);
-
-                 NextView(intent);
-                 break;
 
              case "Sala Studio Paleotti":
                  //dati da database di posti liberi del paleotti
                  Toast.makeText(this, "Paleotti!", Toast.LENGTH_LONG).show();
 
-                 image = new String("http://10.201.13.85/aulestudio/img/Paleotti.jpeg");
-                 idMap = 2;
+                 image = new String("https://aulestudiounibo.altervista.org/aulestudio/img/Paleotti.jpeg");
+                 idMap = 1;
 
                  intent.putExtra("ID_SS", idMap);
                  intent.putExtra("Image", image);
@@ -253,12 +321,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
+    //metodo che cambia la view quando viene selezionato un marker
     public void NextView(Intent intent){
-
-
-
         startActivity(intent);
-
     }
 }
