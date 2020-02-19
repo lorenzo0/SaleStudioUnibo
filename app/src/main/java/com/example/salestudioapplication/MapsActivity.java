@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,21 +49,25 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import static android.view.View.VISIBLE;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
                                                                 GoogleApiClient.ConnectionCallbacks,
                                                                 GoogleApiClient.OnConnectionFailedListener,
                                                                 LocationListener,
-                                                                GoogleMap.OnMarkerClickListener {
+                                                                GoogleMap.OnMarkerClickListener,
+                                                                View.OnClickListener{
 
     private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private Location lastLocation;
     private Marker currentUserLocationMarker;
+    private Button knowMore;
 
 
-    String resultHttpRequest;
-    int currentHour;
+    String resultHttpRequest, image;
+    int currentHour, idMap;
     String[] OpenHourFromJson, CloseHourFromJson;
     //codice di richiesta per la localizzazione, se è diverso, non sono io che la sto richiedendo
     //ma un soggetto esterno (falla di sicurezza)
@@ -81,6 +86,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);    //carico la mappa
         mapFragment.getMapAsync(this);  //sincronizzo la mappa
+
+        knowMore = findViewById(R.id.knowmore);
+        knowMore.setOnClickListener(this);
 
     }
 
@@ -262,6 +270,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void getRestrictionOnAddingMarker(String name, String latitude, String longitude, String totalSeats,
                                                  String occupiedSeats, String openingHour, String closingHour){
 
+            String color = null;
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 currentHour = salaStudio.getCurrentHour();
             }
@@ -269,60 +279,111 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             OpenHourFromJson = openingHour.split(":");
             CloseHourFromJson = closingHour.split(":");
 
+            int currentFreeSeats =  Integer.parseInt(totalSeats) - Integer.parseInt(occupiedSeats);
+
             if(currentHour>Integer.parseInt(OpenHourFromJson[0]) && currentHour<Integer.parseInt(CloseHourFromJson[0])
                     && Integer.parseInt(totalSeats)>Integer.parseInt(occupiedSeats)) {
-                addingMarketSaleStudio(name, latitude, longitude);
+                color="green";
+                addingMarketSaleStudio(name, latitude, longitude, color, currentFreeSeats);
+            }else {
+                color="red";
+                addingMarketSaleStudio(name, latitude, longitude, color, currentFreeSeats);
             }
+
         }
 
 
-        public void addingMarketSaleStudio(String name, String latitude, String longitude){
+        public void addingMarketSaleStudio(String name, String latitude, String longitude, String color,
+                                           int currentFreeSeats){
 
             LatLng newMark = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude));
 
-            this.mMap.addMarker(new MarkerOptions().position(newMark)
-                    .title("Sala Studio "+name));
+            if(color.equals("red")) {
+                this.mMap.addMarker(new MarkerOptions().position(newMark)
+                        .title("Sala Studio " + name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            }else if(color.equals("green")){
+                this.mMap.addMarker(new MarkerOptions().position(newMark)
+                        .title("Sala Studio " + name)
+                        .snippet("Current Free Seats: " + currentFreeSeats)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));;;
+            }
 
             this.mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
         }
-
-    public int idMap;
 
     //l'idea è quella di aprire una nuova activity dal click di una specifica aula studio
     //dai che è figo e forse sta venendo fuori qualcosa di buono
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-         Integer dataFromTag = (Integer) marker.getTag();
-        Intent intent = new Intent(MapsActivity.this, PropertiesSalaStudioActivity.class);
+        Integer dataFromTag = (Integer) marker.getTag();
+        final Intent intent = new Intent(MapsActivity.this, PropertiesSalaStudioActivity.class);
         String image;
+        knowMore = findViewById(R.id.knowmore);
+        knowMore.setVisibility(VISIBLE);
 
          switch (marker.getTitle()){
 
              case "Sala Studio Paleotti":
                  //dati da database di posti liberi del paleotti
-                 Toast.makeText(this, "Paleotti!", Toast.LENGTH_LONG).show();
+                 //Toast.makeText(this, "Paleotti!", Toast.LENGTH_LONG).show();
 
                  image = new String("https://aulestudiounibo.altervista.org/aulestudio/img/Paleotti.jpeg");
                  idMap = 1;
 
-                 intent.putExtra("ID_SS", idMap);
-                 intent.putExtra("Image", image);
+                 //intent.putExtra("ID_SS", idMap);
+                 //intent.putExtra("Image", image);
 
-                 NextView(intent);
+                 setLastSelected(idMap, image);
+                 //NextView(knowMore, intent);
                  break;
 
              default:
                  //se non trova il tag non è stato ancora implementato
                  break;
          }
-
         return false;
     }
 
+    public void setLastSelected(int idMap, String image)
+    {
+        this.idMap = idMap;
+        this.image = image;
+    }
+
+    public int getLastIdMapSelected()
+    {
+        return this.idMap;
+    }
+
+    public String getLastImageSelected()
+    {
+        return this.image;
+    }
 
     //metodo che cambia la view quando viene selezionato un marker
     public void NextView(Intent intent){
         startActivity(intent);
+    }
+
+
+    public void onClick(View view)
+    {
+        switch (view.getId()) {
+            case R.id.knowmore:
+
+                int idMap = getLastIdMapSelected();
+                String image = getLastImageSelected();
+
+                Intent intent = new Intent(MapsActivity.this, PropertiesSalaStudioActivity.class);
+                intent.putExtra("ID_SS", idMap);
+                intent.putExtra("Image", image);
+
+                NextView(intent);
+
+                break;
+
+        }
     }
 }
