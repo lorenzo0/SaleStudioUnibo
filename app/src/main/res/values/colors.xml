@@ -5,4 +5,6 @@
     <color name="colorAccent">#D81B60</color>
     <color name="AlmaMaterColor">#bb2e29</color>
     <color name="FreeOpenSalaStudioColor">#228B22</color>
+    <color name="Gray">#808080</color>
+    <color name="Black">#000000</color>
 </resources>

@@ -283,11 +283,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             int currentFreeSeats =  Integer.parseInt(totalSeats) - Integer.parseInt(occupiedSeats);
 
             if(currentHour>Integer.parseInt(OpenHourFromJson[0]) && currentHour<Integer.parseInt(CloseHourFromJson[0])
-                    && Integer.parseInt(totalSeats)>Integer.parseInt(occupiedSeats)) {
+                    && currentFreeSeats>0) {
                 color="green";
                 addingMarketSaleStudio(name, latitude, longitude, color, currentFreeSeats);
-            }else {
+            }else if(currentHour>Integer.parseInt(OpenHourFromJson[0]) && currentHour<Integer.parseInt(CloseHourFromJson[0])
+                    && currentFreeSeats==0){
                 color="red";
+                addingMarketSaleStudio(name, latitude, longitude, color, currentFreeSeats);
+            }else if(currentHour<Integer.parseInt(OpenHourFromJson[0]) && currentHour>Integer.parseInt(CloseHourFromJson[0])){
+                color="gray";
                 addingMarketSaleStudio(name, latitude, longitude, color, currentFreeSeats);
             }
 
@@ -308,7 +312,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 this.mMap.addMarker(new MarkerOptions().position(newMark)
                         .title("Sala Studio " + name)
                         .snippet("Current Free Seats: " + currentFreeSeats)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));;;
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            }else if(color.equals("gray")){
+                this.mMap.addMarker(new MarkerOptions().position(newMark)
+                        .title("Sala Studio " + name)
+                        .snippet("Currently close")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
             }
 
             this.mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
