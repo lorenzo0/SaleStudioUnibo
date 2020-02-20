@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -322,6 +323,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String image;
         knowMore = findViewById(R.id.knowmore);
         knowMore.setVisibility(VISIBLE);
+
+        String snippetSelected = marker.getSnippet();
+
+        if(snippetSelected.startsWith("No")){
+            knowMore.setBackgroundColor(getResources().getColor(R.color.AlmaMaterColor));
+        }else{
+            knowMore.setBackgroundColor(getResources().getColor(R.color.FreeOpenSalaStudioColor));
+        }
 
          switch (marker.getTitle()){
 

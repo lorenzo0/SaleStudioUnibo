@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goesToMapsActivity(){
-        final Button button = (Button) findViewById(R.id.nextPage); //id bottone della view
+        final Button button = (Button) findViewById(R.id.goesToMapsActivity); //id bottone della view
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goesToKeyActivity(){
-        final Button button = (Button) findViewById(R.id.keyActivity); //id bottone della view
+        final Button button = (Button) findViewById(R.id.goesToKeyActivity); //id bottone della view
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
