@@ -301,6 +301,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(color.equals("red")) {
                 this.mMap.addMarker(new MarkerOptions().position(newMark)
                         .title("Sala Studio " + name)
+                        .snippet("No Free Seats available!")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
             }else if(color.equals("green")){
                 this.mMap.addMarker(new MarkerOptions().position(newMark)

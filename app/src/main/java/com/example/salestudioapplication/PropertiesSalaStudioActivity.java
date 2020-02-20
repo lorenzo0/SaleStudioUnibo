@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
+
 import org.json.*;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.android.volley.*;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -32,7 +35,11 @@ public class PropertiesSalaStudioActivity extends AppCompatActivity {
     Time checkOpenHour, checkCloseHour;
     String urlImage, resultHttpRequest;
     String[] OpenHourFromJson, CloseHourFromJson;
+    Toolbar toolbar;
 
+    public androidx.appcompat.widget.Toolbar toolbar1;
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +51,9 @@ public class PropertiesSalaStudioActivity extends AppCompatActivity {
         TotalSeatSS = (EditText) findViewById(R.id.TotalSeat);
         Adress = (EditText) findViewById(R.id.adressSS);
         nowOpen = (EditText) findViewById(R.id.nowOpen);
+
+        toolbar= (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
 
         intent = getIntent();

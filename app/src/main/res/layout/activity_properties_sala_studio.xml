@@ -6,6 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".PropertiesSalaStudioActivity">
 
+    <include
+    android:id="@+id/toolbar"
+    layout="@layout/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+
     <EditText
         android:id="@+id/nowOpen"
         android:layout_width="wrap_content"
@@ -24,26 +30,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/NameSS" />
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="675dp"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/holo_red_dark"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
     <EditText
         android:id="@+id/NameSS"
         android:layout_width="wrap_content"
@@ -60,7 +46,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/FreeSeat"
