@@ -52,9 +52,6 @@ public class PropertiesSalaStudioActivity extends AppCompatActivity {
         Adress = (EditText) findViewById(R.id.adressSS);
         nowOpen = (EditText) findViewById(R.id.nowOpen);
 
-        toolbar= (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
 
         intent = getIntent();
         sessionId = intent.getIntExtra("ID_SS", 0);

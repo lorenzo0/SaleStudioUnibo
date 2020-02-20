@@ -7,23 +7,23 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity">
 
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="265dp"
         android:layout_height="214dp"
-        android:layout_marginBottom="230dp"
-        android:src="@drawable/rsz_logounihome"
+        android:layout_marginBottom="100dp"
+        android:src="@drawable/almamater"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.438"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3"
-        app:layout_constraintVertical_bias="0.92" />
+        app:layout_constraintVertical_bias="0.385" />
 
     <TextView
         android:id="@+id/textView3"
         android:layout_width="409dp"
-        android:layout_height="155dp"
+        android:layout_height="50dp"
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="Benvenuto in"
@@ -35,12 +35,11 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
-
     <TextView
         android:id="@+id/textView4"
         android:layout_width="409dp"
-        android:layout_height="155dp"
-        android:layout_marginTop="10dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="50dp"
         android:gravity="center"
         android:text="STUDIUNIBO"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -48,12 +47,10 @@
         android:textSize="38dp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.093" />
-
+        app:layout_constraintVertical_bias="0.0" />
     <Button
     android:id="@+id/nextPage"
     android:layout_width="282dp"

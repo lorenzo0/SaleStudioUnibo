@@ -21,15 +21,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); //carico l'attività del main
 
-        NextView(); //rendo attivo il metodo
+        goesToMapsActivity(); //rendo attivo il metodo
+        goesToKeyActivity();
     }
 
-    public void NextView(){
+    public void goesToMapsActivity(){
         final Button button = (Button) findViewById(R.id.nextPage); //id bottone della view
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this,MapsActivity.class));    //porta l'utente da una view ad un'altra
+            }
+        });
+    }
+
+    public void goesToKeyActivity(){
+        final Button button = (Button) findViewById(R.id.keyActivity); //id bottone della view
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,KeyActivity.class));    //porta l'utente da una view ad un'altra
             }
         });
     }

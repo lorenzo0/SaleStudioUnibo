@@ -100,7 +100,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                 == PackageManager.PERMISSION_GRANTED){  //se l'utente mi da il permesso
             buildGoogleApiClient();     //uso l'api di google
             mMap.setMyLocationEnabled(true);    //attivo la localizzazione
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(44.4963128, 11.349082), 12));   //zoom automatico a Bologna nell'onCreate
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(44.4963128, 11.349082), 13));   //zoom automatico a Bologna nell'onCreate
         }
 
         LocationOnMapsRequest(); //carico i marker delle sale studio
@@ -319,7 +319,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public boolean onMarkerClick(Marker marker) {
 
         Integer dataFromTag = (Integer) marker.getTag();
-        final Intent intent = new Intent(MapsActivity.this, PropertiesSalaStudioActivity.class);
         String image;
         knowMore = findViewById(R.id.knowmore);
         knowMore.setVisibility(VISIBLE);
@@ -327,17 +326,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
          switch (marker.getTitle()){
 
              case "Sala Studio Paleotti":
-                 //dati da database di posti liberi del paleotti
-                 //Toast.makeText(this, "Paleotti!", Toast.LENGTH_LONG).show();
-
                  image = new String("https://aulestudiounibo.altervista.org/aulestudio/img/Paleotti.jpeg");
                  idMap = 1;
 
-                 //intent.putExtra("ID_SS", idMap);
-                 //intent.putExtra("Image", image);
-
                  setLastSelected(idMap, image);
-                 //NextView(knowMore, intent);
                  break;
 
              default:
