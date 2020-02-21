@@ -321,8 +321,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 this.mMap.addMarker(new MarkerOptions().position(newMark)
                         .title("Sala Studio " + name)
                         .snippet("Currently close")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                         //da trovare un grigio oppure un png che ci stia nella mappa
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.not_available_close_marker)));
+                        //.icon(BitmapDescriptorFactory.fromResource(R.drawable.not_available_close_marker)));
             }
 
             this.mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
@@ -403,5 +404,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    }
 }

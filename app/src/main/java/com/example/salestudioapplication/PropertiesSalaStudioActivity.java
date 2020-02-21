@@ -3,9 +3,9 @@ package com.example.salestudioapplication;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.json.*;
 
@@ -21,21 +21,18 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONObject;
 
 import java.sql.Time;
-import java.time.LocalTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 public class PropertiesSalaStudioActivity extends AppCompatActivity {
 
-    EditText nameSS, freeSeatSS, TotalSeatSS, Adress, nowOpen;
+    EditText nameSS, TodayOpening, Adress;
+    TextView freeSeatSS;
     ImageView SSphoto;
     Intent intent;
-    int sessionId, checkSeats, currentHour;
+    int sessionId;
     Time checkOpenHour, checkCloseHour;
     String urlImage, resultHttpRequest;
     String[] OpenHourFromJson, CloseHourFromJson;
-    Toolbar toolbar;
+    SalaStudio salaStudio = new SalaStudio();
 
     public androidx.appcompat.widget.Toolbar toolbar1;
 
@@ -46,11 +43,10 @@ public class PropertiesSalaStudioActivity extends AppCompatActivity {
         setContentView(R.layout.activity_properties_sala_studio);
 
         nameSS = (EditText) findViewById(R.id.NameSS);
-        freeSeatSS = (EditText) findViewById(R.id.FreeSeat);
+        freeSeatSS = (TextView) findViewById(R.id.FreeSeat);
         SSphoto = (ImageView) findViewById(R.id.SSphoto);
-        TotalSeatSS = (EditText) findViewById(R.id.TotalSeat);
+        TodayOpening = (EditText) findViewById(R.id.TodayOpening);
         Adress = (EditText) findViewById(R.id.adressSS);
-        nowOpen = (EditText) findViewById(R.id.nowOpen);
 
 
         intent = getIntent();
@@ -93,21 +89,23 @@ public class PropertiesSalaStudioActivity extends AppCompatActivity {
                             String closingHour = (String) jsonObjectSalaStudio.getString("closingHour");
 
 
-                            Picasso.get().load(urlImage).into(SSphoto);
+
                             nameSS.setText(name);
-
-                            nowOpen.setText("Now open!");
-                            freeSeatSS.setBackgroundColor(-16711936); //green
-
-                            //una volta che verifico se è aperta la sala studio
-                            TotalSeatSS.setText("Total seats of the study room: " + totalSeats);
                             Adress.setText(addressStreet + ", " +addressNumber );
+
+                            Picasso.get().load(urlImage).into(SSphoto);
+
+                            OpenHourFromJson = openingHour.split(":");
+                            CloseHourFromJson = closingHour.split(":");
+
+                            TodayOpening.setText(salaStudio.getCurrentDayOfTheWeek() + ", From " +OpenHourFromJson[0] + ":" +OpenHourFromJson[1]
+                                                + " to " +CloseHourFromJson[0] + ":" +CloseHourFromJson[1]);
 
                             int freeSeat = Integer.parseInt(totalSeats) - Integer.parseInt(occupiedSeats);
 
                                 if(freeSeat>=10)
                                 {
-                                    freeSeatSS.setText("Are now free " + freeSeat + " seats,\n go and get them!");
+                                    freeSeatSS.setText("Are now free " + freeSeat + " seats, go and get them!");
                                 }else if(freeSeat<10){
                                     freeSeatSS.setText("Not many seats are free, only " + freeSeat + ", go and get them");
                                     freeSeatSS.setBackgroundColor(-256); //yellow
