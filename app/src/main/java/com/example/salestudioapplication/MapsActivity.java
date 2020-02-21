@@ -36,6 +36,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -67,9 +68,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button knowMore;
 
 
-    String resultHttpRequest, image;
+    String resultHttpRequest, image, currentDay;
     int currentHour, idMap;
     String[] OpenHourFromJson, CloseHourFromJson;
+
     //codice di richiesta per la localizzazione, se è diverso, non sono io che la sto richiedendo
     //ma un soggetto esterno (falla di sicurezza)
     private static final int Request_User_Location_Code = 99;
@@ -252,7 +254,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                                     Log.d("idLetto", name);
 
-                                    getRestrictionOnAddingMarker(name, latitude, longitude, totalSeats, occupiedSeats, openingHour, closingHour);
+                                    getRestrictionOnAddingMarker(name, latitude, longitude, totalSeats, occupiedSeats, dayOfTheWeek, openingHour, closingHour);
                                 }
 
                             } catch (JSONException e) {
@@ -269,13 +271,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @RequiresApi(api = Build.VERSION_CODES.O)
         public void getRestrictionOnAddingMarker(String name, String latitude, String longitude, String totalSeats,
-                                                 String occupiedSeats, String openingHour, String closingHour){
+                                                 String occupiedSeats, String dayOfTheWeek, String openingHour, String closingHour){
 
             String color = null;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 currentHour = salaStudio.getCurrentHour();
             }
+            currentDay = salaStudio.getCurrentDayOfTheWeek();
+
 
             OpenHourFromJson = openingHour.split(":");
             CloseHourFromJson = closingHour.split(":");
@@ -283,14 +287,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             int currentFreeSeats =  Integer.parseInt(totalSeats) - Integer.parseInt(occupiedSeats);
 
             if(currentHour>Integer.parseInt(OpenHourFromJson[0]) && currentHour<Integer.parseInt(CloseHourFromJson[0])
-                    && currentFreeSeats>0) {
+                    && currentFreeSeats>0 && currentDay.equals(dayOfTheWeek)) {
                 color="green";
                 addingMarketSaleStudio(name, latitude, longitude, color, currentFreeSeats);
             }else if(currentHour>Integer.parseInt(OpenHourFromJson[0]) && currentHour<Integer.parseInt(CloseHourFromJson[0])
-                    && currentFreeSeats==0){
+                    && currentFreeSeats==0 && currentDay.equals(dayOfTheWeek)){
                 color="red";
                 addingMarketSaleStudio(name, latitude, longitude, color, currentFreeSeats);
-            }else if(currentHour<Integer.parseInt(OpenHourFromJson[0]) && currentHour>Integer.parseInt(CloseHourFromJson[0])){
+            }else if(currentHour<Integer.parseInt(OpenHourFromJson[0]) || currentHour>Integer.parseInt(CloseHourFromJson[0])){
                 color="gray";
                 addingMarketSaleStudio(name, latitude, longitude, color, currentFreeSeats);
             }
@@ -317,7 +321,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 this.mMap.addMarker(new MarkerOptions().position(newMark)
                         .title("Sala Studio " + name)
                         .snippet("Currently close")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                        //da trovare un grigio oppure un png che ci stia nella mappa
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.not_available_close_marker)));
             }
 
             this.mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
@@ -396,5 +401,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 break;
 
         }
+    }
+
     }
 }
